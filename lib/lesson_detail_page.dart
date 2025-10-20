@@ -4,8 +4,16 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 class LessonDetailPage extends StatefulWidget {
   final String title;
   final String desc;
+  final String videoUrl;
+  final Map<String, dynamic> quiz;
 
-  const LessonDetailPage({super.key, required this.title, required this.desc});
+  const LessonDetailPage({
+    super.key,
+    required this.title,
+    required this.desc,
+    required this.videoUrl,
+    required this.quiz,
+  });
 
   @override
   State<LessonDetailPage> createState() => _LessonDetailPageState();
@@ -13,23 +21,14 @@ class LessonDetailPage extends StatefulWidget {
 
 class _LessonDetailPageState extends State<LessonDetailPage> {
   late YoutubePlayerController _controller;
-
   int? selectedAnswer;
   bool isFinished = false;
-
-  final Map<String, dynamic> quiz = {
-    "question": "Tu 'Hello' co nghia la gi?",
-    "options": ["Xin chao", "Tam biet", "Cam on", "Hen gap lai"],
-    "answer": 0,
-  };
 
   @override
   void initState() {
     super.initState();
     _controller = YoutubePlayerController(
-      initialVideoId: YoutubePlayer.convertUrlToId(
-        "https://www.youtube.com/watch?v=QFaFIcGhPoM",
-      )!, // 👈 link video
+      initialVideoId: YoutubePlayer.convertUrlToId(widget.videoUrl)!,
       flags: const YoutubePlayerFlags(autoPlay: false, mute: false),
     );
   }
@@ -47,8 +46,17 @@ class _LessonDetailPageState extends State<LessonDetailPage> {
     });
   }
 
+  void restartQuiz() {
+    setState(() {
+      selectedAnswer = null;
+      isFinished = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final quiz = widget.quiz;
+
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
       body: SingleChildScrollView(
@@ -64,7 +72,7 @@ class _LessonDetailPageState extends State<LessonDetailPage> {
             Text(widget.desc, style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 20),
 
-            // Video
+            // 🎥 YouTube Video
             YoutubePlayer(
               controller: _controller,
               showVideoProgressIndicator: true,
@@ -82,14 +90,17 @@ class _LessonDetailPageState extends State<LessonDetailPage> {
             const SizedBox(height: 10),
 
             ...List.generate(quiz["options"].length, (index) {
+              final isCorrect = index == quiz["answer"];
+              final isSelected = selectedAnswer == index;
+
               return Container(
                 margin: const EdgeInsets.symmetric(vertical: 5),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isFinished
-                        ? (index == quiz["answer"]
+                        ? (isCorrect
                               ? Colors.green
-                              : (index == selectedAnswer ? Colors.red : null))
+                              : (isSelected ? Colors.red : null))
                         : null,
                   ),
                   onPressed: isFinished ? null : () => checkAnswer(index),
@@ -101,11 +112,21 @@ class _LessonDetailPageState extends State<LessonDetailPage> {
             if (isFinished)
               Padding(
                 padding: const EdgeInsets.only(top: 12),
-                child: Text(
-                  selectedAnswer == quiz["answer"]
-                      ? "Chinh xac!"
-                      : "Sai roi. Dap an dung la: ${quiz["options"][quiz["answer"]]}",
-                  style: const TextStyle(fontSize: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      selectedAnswer == quiz["answer"]
+                          ? "✅ Correct!"
+                          : "❌ Incorrect. The correct answer is: ${quiz["options"][quiz["answer"]]}",
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: restartQuiz,
+                      child: const Text("Try Again"),
+                    ),
+                  ],
                 ),
               ),
           ],
