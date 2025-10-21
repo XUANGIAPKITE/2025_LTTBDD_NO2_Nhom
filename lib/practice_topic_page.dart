@@ -5,11 +5,11 @@ class PracticeTopicPage extends StatelessWidget {
   const PracticeTopicPage({super.key});
 
   final List<Map<String, String>> topics = const [
-    {"title": "Greetings", "image": "https://i.imgur.com/6HmjOAK.png"},
-    {"title": "Shopping", "image": "https://i.imgur.com/m8OAcf8.png"},
-    {"title": "Travel", "image": "https://i.imgur.com/t3fB0GI.png"},
-    {"title": "Food", "image": "https://i.imgur.com/yLdxY9N.png"},
-    {"title": "Work", "image": "https://i.imgur.com/Ax5PcBj.png"},
+    {"title": "Greetings", "image": "assets/imgs/greetings.webp"},
+    {"title": "Shopping", "image": "assets/imgs/shopping.jpg"},
+    {"title": "Travel", "image": "assets/imgs/travel.jpg"},
+    {"title": "Food", "image": "assets/imgs/food.jpg"},
+    {"title": "Work", "image": "assets/imgs/work.webp"},
   ];
 
   @override
@@ -52,7 +52,7 @@ class PracticeTopicPage extends StatelessWidget {
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(16),
                     ),
-                    child: Image.network(
+                    child: Image.asset(
                       topic["image"]!,
                       height: 120,
                       width: double.infinity,

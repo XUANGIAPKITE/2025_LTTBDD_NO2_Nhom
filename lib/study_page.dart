@@ -30,7 +30,7 @@ class StudyPage extends StatelessWidget {
       {
         "title": "Lesson 3: Basic Phrases",
         "desc": "Common greetings and expressions.",
-        "video": "https://www.youtube.com/watch?v=um3YrKRfsr0",
+        "video": "https://www.youtube.com/watch?v=dFfpwusojjA",
         "quiz": {
           "question": "What do you say when you meet someone?",
           "options": ["Goodbye", "Hello", "Sorry", "Thanks"],
@@ -40,7 +40,7 @@ class StudyPage extends StatelessWidget {
       {
         "title": "Lesson 4: Food & Drinks",
         "desc": "Names of foods and drinks.",
-        "video": "https://www.youtube.com/watch?v=Y2H5L4x4Vj8",
+        "video": "https://www.youtube.com/watch?v=yezpvLy6eRM",
         "quiz": {
           "question": "Which one is a drink?",
           "options": ["Apple", "Water", "Rice", "Fish"],
@@ -50,7 +50,8 @@ class StudyPage extends StatelessWidget {
       {
         "title": "Lesson 5: Travel",
         "desc": "Useful travel expressions.",
-        "video": "https://www.youtube.com/watch?v=Pa-C3NIuT_E",
+        "video":
+            "https://www.youtube.com/watch?v=2BhuZARr-QY&list=PLOCvbe7RB9faAmKDaN2WfhRW8p0C3EZnL",
         "quiz": {
           "question": "What do you say when asking for directions?",
           "options": [
