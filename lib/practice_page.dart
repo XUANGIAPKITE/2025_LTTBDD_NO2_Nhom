@@ -19,81 +19,73 @@ class _PracticePageState extends State<PracticePage> {
   double _accuracy = 0;
   int _currentIndex = 0;
 
+  /// 🖼️ Thay thế toàn bộ link ảnh mạng bằng ảnh nội bộ trong assets/imgs/
   final Map<String, List<Map<String, String>>> _sentences = {
     "Greetings": [
-      {
-        "sentence": "Hello, how are you?",
-        "image": "https://i.imgur.com/3ZQ3ZbB.png",
-      },
-      {"sentence": "Good morning!", "image": "https://i.imgur.com/Ax5PcBj.png"},
+      {"sentence": "Hello, how are you?", "image": "assets/imgs/hello.jpg"},
+      {"sentence": "Good morning!", "image": "assets/imgs/good_morning.jpg"},
       {
         "sentence": "Nice to meet you!",
-        "image": "https://i.imgur.com/6HmjOAK.png",
+        "image": "assets/imgs/nice_to_meet_you.png",
       },
-      {"sentence": "Good night!", "image": "https://i.imgur.com/ueCDmsF.png"},
+      {"sentence": "Good night!", "image": "assets/imgs/good_night.jpg"},
     ],
     "Shopping": [
-      {
-        "sentence": "How much is this?",
-        "image": "https://i.imgur.com/qRGm1nb.png",
-      },
+      {"sentence": "How much is this?", "image": "assets/imgs/how_much.jpg"},
       {
         "sentence": "Do you have this in red?",
-        "image": "https://i.imgur.com/m8OAcf8.png",
+        "image": "assets/imgs/do_you_have_this_in_red.jpg",
       },
       {
         "sentence": "I’d like to buy this one.",
-        "image": "https://i.imgur.com/giYd4Us.png",
+        "image": "assets/imgs/i_d_like_to_buy.jpg",
       },
-      {
-        "sentence": "Can I try it on?",
-        "image": "https://i.imgur.com/GlrSuXZ.png",
-      },
+      {"sentence": "Can I try it on?", "image": "assets/imgs/can_i_try.jpg"},
     ],
     "Travel": [
       {
         "sentence": "Where is the nearest bus stop?",
-        "image": "https://i.imgur.com/De3qT4p.png",
+        "image": "assets/imgs/where_is_the_nearest_bus.jpg",
       },
       {
         "sentence": "I need a taxi, please.",
-        "image": "https://i.imgur.com/mgYwEwN.png",
+        "image": "assets/imgs/i_need_a_taxi.jpg",
       },
       {
         "sentence": "Can you show me on the map?",
-        "image": "https://i.imgur.com/t3fB0GI.png",
+        "image": "assets/imgs/can_u_show_me_on_the_map.jpg",
       },
       {
         "sentence": "How long is the flight?",
-        "image": "https://i.imgur.com/HZlYAK8.png",
+        "image": "assets/imgs/how_long_is_the_flight.jpg",
       },
     ],
     "Food": [
       {
         "sentence": "I’d like a cup of coffee.",
-        "image": "https://i.imgur.com/ysQDJk3.png",
+        "image": "assets/imgs/i_d_like_a_cup.jpg",
       },
       {
         "sentence": "The food tastes great!",
-        "image": "https://i.imgur.com/TbflMtG.png",
+        "image": "assets/imgs/the_food_tastes_great.jpg",
       },
       {
         "sentence": "Can I have the menu, please?",
-        "image": "https://i.imgur.com/WZV3z5C.png",
+        "image": "assets/imgs/can_i_have_the_menu.jpg",
       },
     ],
     "Work": [
       {
         "sentence": "I have a meeting today.",
-        "image": "https://i.imgur.com/4jPoPpH.png",
+        "image": "assets/imgs/i_have_a_metting_today.jpg",
       },
       {
         "sentence": "I need to send an email.",
-        "image": "https://i.imgur.com/YcOeeRC.png",
+        "image": "assets/imgs/i_need_to_send_an_email.png",
       },
       {
         "sentence": "Let’s take a short break.",
-        "image": "https://i.imgur.com/RsoPhtv.png",
+        "image": "assets/imgs/let_take_a_break.jpg",
       },
     ],
   };
@@ -187,7 +179,7 @@ class _PracticePageState extends State<PracticePage> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(image, height: 200, fit: BoxFit.cover),
+              child: Image.asset(image, height: 200, fit: BoxFit.cover),
             ),
             const SizedBox(height: 24),
 
