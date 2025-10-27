@@ -107,12 +107,6 @@ class HomePage extends StatelessWidget {
               style: const TextStyle(color: Colors.white),
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: lang == 'en' ? "Logout" : "Đăng xuất",
-            onPressed: () => FirebaseAuth.instance.signOut(),
-          ),
-          const SizedBox(width: 10),
         ],
       ),
 
