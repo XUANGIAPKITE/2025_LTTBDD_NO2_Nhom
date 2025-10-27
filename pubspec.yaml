@@ -20,6 +20,7 @@ dependencies:
   speech_to_text: ^7.3.0     # Nhận dạng giọng nói
   firebase_core: ^3.15.2
   firebase_auth: ^5.3.1
+  cloud_firestore: ^5.2.0
 
 dev_dependencies:
   flutter_test:

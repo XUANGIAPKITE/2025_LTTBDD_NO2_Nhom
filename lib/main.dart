@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+// Các file trong dự án của bạn
 import 'quiz_page.dart';
 import 'study_page.dart';
 import 'login_page.dart';
@@ -8,18 +12,23 @@ import 'favorites_page.dart';
 import 'review_page.dart';
 import 'all_phrases_page.dart';
 import 'phrase_provider.dart';
-import 'language_provider.dart'; // ✅ thêm dòng này
+import 'language_provider.dart';
 import 'practice_topic_page.dart';
-import 'package:firebase_core/firebase_core.dart'; // ✅ Thêm dòng này để dùng Firebase
+import 'profile_page.dart';
+import 'quiz_provider.dart';
+import 'practice_provider.dart';
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // ✅ Khởi tạo Firebase
+  await Firebase.initializeApp();
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PhraseProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
+        ChangeNotifierProvider(create: (_) => QuizProvider()),
+        ChangeNotifierProvider(create: (_) => PracticeProvider()),
       ],
       child: const MyApp(),
     ),
@@ -32,15 +41,40 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final language = context.watch<LanguageProvider>().language;
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: language == 'en' ? 'Learning App' : 'Ứng dụng học tiếng Anh',
       theme: ThemeData(primarySwatch: Colors.teal),
-      home: const LoginPage(), // Trang khởi đầu
+      home: const AuthWrapper(),
     );
   }
 }
 
+// ✅ Kiểm tra trạng thái đăng nhập
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator(color: Colors.teal)),
+          );
+        } else if (snapshot.hasData) {
+          return const HomePage();
+        } else {
+          return const LoginPage();
+        }
+      },
+    );
+  }
+}
+
+// 🏠 Trang chính
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -52,9 +86,19 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(lang == 'en' ? "American English" : "Tiếng Anh Mỹ"),
+        backgroundColor: Colors.teal,
         actions: [
-          IconButton(icon: const Icon(Icons.search), onPressed: () {}),
-          const SizedBox(width: 10),
+          IconButton(
+            icon: const Icon(Icons.person),
+            tooltip: lang == 'en' ? "Profile" : "Thông tin cá nhân",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfilePage()),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
           TextButton.icon(
             onPressed: () => langProvider.toggleLanguage(),
             icon: const Icon(Icons.language, color: Colors.white),
@@ -63,52 +107,48 @@ class HomePage extends StatelessWidget {
               style: const TextStyle(color: Colors.white),
             ),
           ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: lang == 'en' ? "Logout" : "Đăng xuất",
+            onPressed: () => FirebaseAuth.instance.signOut(),
+          ),
           const SizedBox(width: 10),
         ],
       ),
+
+      // 🔹 Nội dung chính
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 🔹 Thanh menu trên đầu
+            // 🔹 Thanh menu ngang
             Container(
               color: Colors.teal,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  TabButton(
-                    title: lang == 'en' ? "PHRASES" : "CỤM TỪ",
-                    isActive: true,
-                  ),
+                  const TabButton(title: "PHRASES", isActive: true),
                   TabButton(
                     title: lang == 'en' ? "QUIZ" : "CÂU ĐỐ",
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => QuizPage()),
-                      );
-                    },
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => QuizPage()),
+                    ),
                   ),
                   TabButton(
                     title: lang == 'en' ? "STUDY" : "HỌC TẬP",
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const StudyPage(),
-                        ),
-                      );
-                    },
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const StudyPage()),
+                    ),
                   ),
                   TabButton(
                     title: lang == 'en' ? "PRACTICE" : "LUYỆN TẬP",
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PracticeTopicPage(),
-                        ),
-                      );
-                    },
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PracticeTopicPage(),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -128,54 +168,39 @@ class HomePage extends StatelessWidget {
                     title: lang == 'en' ? "Favorites" : "Yêu thích",
                     icon: Icons.star,
                     color: Colors.grey,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const FavoritesPage(),
-                        ),
-                      );
-                    },
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const FavoritesPage()),
+                    ),
                   ),
                   FeatureCard(
                     title: lang == 'en' ? "To Review" : "Ôn tập",
                     icon: Icons.bookmark,
                     color: Colors.grey,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ToReviewPage(),
-                        ),
-                      );
-                    },
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ToReviewPage()),
+                    ),
                   ),
                   FeatureCard(
                     title: lang == 'en' ? "All Phrases" : "Tất cả cụm từ",
                     icon: Icons.menu,
                     color: Colors.grey,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AllPhrasesPage(),
-                        ),
-                      );
-                    },
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AllPhrasesPage()),
+                    ),
                   ),
                   FeatureCard(
                     title: lang == 'en' ? "Numbers" : "Số đếm",
                     icon: Icons.onetwothree,
                     color: Colors.indigo,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              PhrasesPage(category: "Numbers"),
-                        ),
-                      );
-                    },
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PhrasesPage(category: "Numbers"),
+                      ),
+                    ),
                   ),
                   FeatureCard(
                     title: lang == 'en'
@@ -183,70 +208,59 @@ class HomePage extends StatelessWidget {
                         : "Thời gian & Ngày tháng",
                     icon: Icons.access_time,
                     color: Colors.indigo,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              PhrasesPage(category: "Time & Date"),
-                        ),
-                      );
-                    },
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const PhrasesPage(category: "Time & Date"),
+                      ),
+                    ),
                   ),
                   FeatureCard(
                     title: lang == 'en' ? "Colors" : "Màu sắc",
                     icon: Icons.palette,
                     color: Colors.indigo,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PhrasesPage(category: "Colors"),
-                        ),
-                      );
-                    },
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PhrasesPage(category: "Colors"),
+                      ),
+                    ),
                   ),
                   FeatureCard(
                     title: lang == 'en' ? "Greetings" : "Chào hỏi",
                     icon: Icons.waving_hand,
                     color: Colors.deepPurple,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              PhrasesPage(category: "Greetings"),
-                        ),
-                      );
-                    },
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const PhrasesPage(category: "Greetings"),
+                      ),
+                    ),
                   ),
                   FeatureCard(
                     title: lang == 'en' ? "Directions" : "Chỉ đường",
                     icon: Icons.directions_bus,
                     color: Colors.deepPurple,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              PhrasesPage(category: "Directions"),
-                        ),
-                      );
-                    },
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const PhrasesPage(category: "Directions"),
+                      ),
+                    ),
                   ),
                   FeatureCard(
                     title: lang == 'en' ? "Shopping" : "Mua sắm",
                     icon: Icons.shopping_cart,
                     color: Colors.deepPurple,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              PhrasesPage(category: "Shopping"),
-                        ),
-                      );
-                    },
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PhrasesPage(category: "Shopping"),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -258,7 +272,7 @@ class HomePage extends StatelessWidget {
   }
 }
 
-// -------------------- COMPONENT: Nút menu --------------------
+// -------------------- COMPONENT: Nút menu ngang --------------------
 class TabButton extends StatelessWidget {
   final String title;
   final bool isActive;
@@ -315,6 +329,7 @@ class FeatureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
       child: Container(
         decoration: BoxDecoration(
           color: color,

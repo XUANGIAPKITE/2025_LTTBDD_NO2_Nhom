@@ -11,20 +11,40 @@ class FavoritesPage extends StatelessWidget {
     final favorites = provider.favorites.toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Favorites")),
+      appBar: AppBar(
+        title: const Text("Favorites"),
+        backgroundColor: Colors.teal,
+      ),
       body: favorites.isEmpty
-          ? const Center(child: Text("No favorite phrases yet"))
+          ? const Center(
+              child: Text(
+                "No favorite phrases yet",
+                style: TextStyle(fontSize: 16),
+              ),
+            )
           : ListView.builder(
               itemCount: favorites.length,
               itemBuilder: (context, index) {
                 final phrase = favorites[index];
-                return ListTile(
-                  leading: const Icon(Icons.favorite, color: Colors.red),
-                  title: Text(phrase),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () =>
-                        provider.toggleFavorite(phrase), // Xóa khỏi danh sách
+                return Card(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  child: ListTile(
+                    leading: const Icon(Icons.favorite, color: Colors.red),
+                    title: Text(phrase),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.grey),
+                      onPressed: () {
+                        provider.toggleFavorite(phrase);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Removed from favorites'),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 );
               },

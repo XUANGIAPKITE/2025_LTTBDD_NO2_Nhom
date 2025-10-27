@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PracticePage extends StatefulWidget {
   final String topic;
@@ -13,13 +15,14 @@ class PracticePage extends StatefulWidget {
 class _PracticePageState extends State<PracticePage> {
   final FlutterTts _tts = FlutterTts();
   final stt.SpeechToText _speech = stt.SpeechToText();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   bool _isListening = false;
   String _spokenText = '';
   double _accuracy = 0;
   int _currentIndex = 0;
 
-  /// 🖼️ Thay thế toàn bộ link ảnh mạng bằng ảnh nội bộ trong assets/imgs/
   final Map<String, List<Map<String, String>>> _sentences = {
     "Greetings": [
       {"sentence": "Hello, how are you?", "image": "assets/imgs/hello.jpg"},
@@ -96,7 +99,7 @@ class _PracticePageState extends State<PracticePage> {
     _initTTS();
   }
 
-  void _initTTS() async {
+  Future<void> _initTTS() async {
     await _tts.setLanguage("en-US");
     await _tts.setSpeechRate(0.5);
   }
@@ -138,7 +141,32 @@ class _PracticePageState extends State<PracticePage> {
       if (targetWords.contains(word)) match++;
     }
 
-    return (match / targetWords.length) * 100;
+    return (match / targetWords.length) * 100.0;
+  }
+
+  Future<void> _saveProgress(double accuracy) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    final userRef = _firestore.collection('users').doc(user.uid);
+    final userDoc = await userRef.get();
+
+    int prevCount = 0;
+    double prevAvg = 0.0;
+
+    if (userDoc.exists && userDoc.data() != null) {
+      final data = userDoc.data()!;
+      prevCount = (data['practiceCount'] ?? 0).toInt();
+      prevAvg = (data['averageAccuracy'] ?? 0.0).toDouble();
+    }
+
+    final newCount = prevCount + 1;
+    final newAvg = ((prevAvg * prevCount) + accuracy) / newCount.toDouble();
+
+    await userRef.set({
+      'practiceCount': newCount,
+      'averageAccuracy': newAvg,
+    }, SetOptions(merge: true));
   }
 
   void _nextSentence() {
@@ -147,6 +175,7 @@ class _PracticePageState extends State<PracticePage> {
       _currentIndex = (_currentIndex + 1) % total;
       _spokenText = '';
       _accuracy = 0;
+      _isListening = false;
     });
   }
 
@@ -157,7 +186,7 @@ class _PracticePageState extends State<PracticePage> {
       (index) => Icon(
         index < stars ? Icons.star : Icons.star_border,
         color: index < stars ? Colors.amber : Colors.grey,
-        size: 30,
+        size: 28,
       ),
     );
   }
@@ -244,7 +273,10 @@ class _PracticePageState extends State<PracticePage> {
             const Spacer(),
 
             ElevatedButton.icon(
-              onPressed: _nextSentence,
+              onPressed: () async {
+                await _saveProgress(_accuracy);
+                _nextSentence();
+              },
               icon: const Icon(Icons.navigate_next),
               label: const Text("Next Sentence"),
               style: ElevatedButton.styleFrom(

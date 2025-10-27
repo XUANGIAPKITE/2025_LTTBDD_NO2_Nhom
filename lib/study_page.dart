@@ -66,24 +66,18 @@ class StudyPage extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Study Lessons")),
-      body: ListView.builder(
-        itemCount: lessons.length,
-        itemBuilder: (context, index) {
-          final lesson = lessons[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Colors.teal,
-                child: Text(
-                  "${index + 1}",
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-              title: Text(lesson["title"] as String),
-              subtitle: Text(lesson["desc"] as String),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      appBar: AppBar(
+        title: const Text("Study Lessons"),
+        backgroundColor: Colors.teal,
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ListView.builder(
+          itemCount: lessons.length,
+          itemBuilder: (context, index) {
+            final lesson = lessons[index];
+            return GestureDetector(
               onTap: () {
                 Navigator.push(
                   context,
@@ -97,9 +91,48 @@ class StudyPage extends StatelessWidget {
                   ),
                 );
               },
-            ),
-          );
-        },
+              child: Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    radius: 22,
+                    backgroundColor: Colors.teal,
+                    child: Text(
+                      "${index + 1}",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    lesson["title"] as String,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: Text(
+                      lesson["desc"] as String,
+                      style: const TextStyle(color: Colors.black54),
+                    ),
+                  ),
+                  trailing: const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 18,
+                    color: Colors.teal,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

@@ -16,7 +16,7 @@ class PracticeTopicPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("🎯 Choose a Topic"),
+        title: const Text("Choose a Topic"),
         backgroundColor: Colors.teal,
         centerTitle: true,
       ),

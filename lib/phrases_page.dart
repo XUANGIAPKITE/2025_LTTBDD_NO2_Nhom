@@ -60,7 +60,16 @@ class _PhrasesPageState extends State<PhrasesPage> {
     final items = phrases[widget.category] ?? [];
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.category)),
+      appBar: AppBar(
+        title: Text(widget.category),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: "Refresh",
+            onPressed: () => setState(() {}),
+          ),
+        ],
+      ),
       body: ListView.builder(
         itemCount: items.length,
         itemBuilder: (context, index) {
@@ -73,6 +82,9 @@ class _PhrasesPageState extends State<PhrasesPage> {
 
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: ListTile(
               title: Text(
                 en,
@@ -81,27 +93,47 @@ class _PhrasesPageState extends State<PhrasesPage> {
                   fontSize: 18,
                 ),
               ),
-              subtitle: Text(vi, style: const TextStyle(fontSize: 16)),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
+              subtitle: Text(
+                vi,
+                style: const TextStyle(fontSize: 16, color: Colors.black54),
+              ),
+              trailing: Wrap(
+                spacing: 8,
                 children: [
-                  // ❤️
                   IconButton(
                     icon: Icon(
                       isFavorite ? Icons.favorite : Icons.favorite_border,
                       color: isFavorite ? Colors.red : Colors.grey,
                     ),
-                    onPressed: () => provider.toggleFavorite(en),
+                    onPressed: () {
+                      provider.toggleFavorite(en);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            isFavorite
+                                ? "Removed from favorites"
+                                : "Added to favorites",
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                  // 🚩
                   IconButton(
                     icon: Icon(
                       isFlagged ? Icons.flag : Icons.outlined_flag,
                       color: isFlagged ? Colors.orange : Colors.grey,
                     ),
-                    onPressed: () => provider.toggleFlagged(en),
+                    onPressed: () {
+                      provider.toggleFlagged(en);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            isFlagged ? "Removed flag" : "Marked for review",
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                  // 🔊
                   IconButton(
                     icon: const Icon(Icons.volume_up, color: Colors.teal),
                     onPressed: () => speak(en),

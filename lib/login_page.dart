@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // 🔥 Thêm dòng này
 import 'main.dart'; // HomePage
 
 class LoginPage extends StatefulWidget {
@@ -14,23 +15,39 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+  /// 🔹 Hàm lưu thông tin người dùng mới vào Firestore
+  Future<void> _saveUserDataToFirestore(User user) async {
+    final docRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
+
+    await docRef.set({
+      'email': user.email,
+      'createdAt': FieldValue.serverTimestamp(),
+      'displayName': user.displayName ?? '',
+      'role': 'user', // Bạn có thể đổi thành "admin" nếu muốn
+    }, SetOptions(merge: true));
+  }
+
   Future<void> _authenticate() async {
     try {
       if (isLogin) {
-        // Đăng nhập
+        // 🔹 Đăng nhập
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text.trim(),
           password: passwordController.text.trim(),
         );
       } else {
-        // Đăng ký
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
-        );
+        // 🔹 Đăng ký
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+              email: emailController.text.trim(),
+              password: passwordController.text.trim(),
+            );
+
+        // 🔹 Sau khi đăng ký xong, lưu vào Firestore
+        await _saveUserDataToFirestore(userCredential.user!);
       }
 
-      // Chuyển sang HomePage khi thành công
+      // 🔹 Chuyển sang HomePage khi thành công
       if (mounted) {
         Navigator.pushReplacement(
           context,
